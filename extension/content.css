@@ -1,0 +1,79 @@
+/* PhishBlock Browser Extension - Content Script Styles */
+
+.phishblock-suspicious-text {
+  background-color: #ffeb3b !important;
+  border: 2px solid #ff9800 !important;
+  border-radius: 3px !important;
+  padding: 2px 4px !important;
+  margin: 0 2px !important;
+  position: relative !important;
+  animation: phishblock-pulse 2s infinite !important;
+}
+
+.phishblock-suspicious-text::after {
+  content: "⚠️" !important;
+  position: absolute !important;
+  top: -8px !important;
+  right: -8px !important;
+  background: #ff9800 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+}
+
+.phishblock-form-warning {
+  animation: phishblock-slide-in 0.3s ease-out !important;
+}
+
+.phishblock-warning {
+  animation: phishblock-slide-down 0.3s ease-out !important;
+}
+
+@keyframes phishblock-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes phishblock-slide-in {
+  from { 
+    transform: translateX(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes phishblock-slide-down {
+  from { 
+    transform: translateY(-100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+/* Override any conflicting styles */
+.phishblock-suspicious-text * {
+  background-color: inherit !important;
+  border: inherit !important;
+  color: inherit !important;
+}
+
+/* Ensure warnings are always visible */
+.phishblock-warning,
+.phishblock-form-warning {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}

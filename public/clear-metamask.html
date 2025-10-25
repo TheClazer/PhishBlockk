@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear MetaMask State</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>MetaMask State Reset Tool</h1>
+    <p>This tool will help clear any stuck MetaMask connection states.</p>
+    
+    <button onclick="clearState()">Clear MetaMask State</button>
+    <button onclick="refreshPage()">Refresh Main App</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function clearState() {
+            const result = document.getElementById('result');
+            
+            if (typeof window.ethereum === 'undefined') {
+                result.innerHTML = '<p class="error">MetaMask not detected. Please install MetaMask first.</p>';
+                return;
+            }
+            
+            try {
+                // Try to clear any pending requests
+                await window.ethereum.request({ method: 'eth_accounts' });
+                
+                // Try to disconnect if connected
+                try {
+                    await window.ethereum.request({ method: 'wallet_requestPermissions', params: [] });
+                } catch (e) {
+                    // Ignore errors here
+                }
+                
+                result.innerHTML = '<p class="success">MetaMask state cleared! You can now go back to the main app and try connecting again.</p>';
+                
+            } catch (error) {
+                result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        function refreshPage() {
+            window.open('http://localhost:3000', '_blank');
+        }
+    </script>
+</body>
+</html>
+

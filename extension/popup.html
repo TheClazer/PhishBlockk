@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishBlock Protection</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .header {
+      padding: 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 10px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .status-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .status-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .status-icon.active {
+      background: #4caf50;
+    }
+
+    .status-icon.warning {
+      background: #ff9800;
+    }
+
+    .status-icon.error {
+      background: #f44336;
+    }
+
+    .status-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-description {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+
+    .reputation-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .reputation-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #8bc34a);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .reputation-text {
+      font-size: 11px;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: white;
+      border: 1px solid #d32f2f;
+    }
+
+    .btn-danger:hover {
+      background: #d32f2f;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .recent-activity {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+    }
+
+    .activity-header {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .activity-text {
+      font-size: 11px;
+      flex: 1;
+    }
+
+    .activity-time {
+      font-size: 10px;
+      opacity: 0.6;
+    }
+
+    .footer {
+      padding: 15px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .footer-text {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🛡️</div>
+    <div class="title">PhishBlock</div>
+    <div class="subtitle">Decentralized Protection</div>
+  </div>
+
+  <div class="content">
+    <!-- Protection Status -->
+    <div class="status-card">
+      <div class="status-header">
+        <div class="status-icon active" id="protection-status-icon">✓</div>
+        <div class="status-title" id="protection-status">Protection Active</div>
+      </div>
+      <div class="status-description" id="protection-description">
+        Monitoring current page for phishing attempts
+      </div>
+    </div>
+
+    <!-- User Reputation -->
+    <div class="status-card">
+      <div class="status-header">
+        <div class="status-icon active">⭐</div>
+        <div class="status-title">Reputation Score</div>
+      </div>
+      <div class="reputation-bar">
+        <div class="reputation-fill" id="reputation-fill" style="width: 50%"></div>
+      </div>
+      <div class="reputation-text" id="reputation-text">50/100 (Silver Tier)</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="report-btn">Report Site</button>
+      <button class="btn btn-secondary" id="check-btn">Check Page</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number" id="reports-count">12</div>
+        <div class="stat-label">Reports</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="votes-count">8</div>
+        <div class="stat-label">Votes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="blocks-count">3</div>
+        <div class="stat-label">Blocks</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="rewards-count">25</div>
+        <div class="stat-label">Rewards</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <div class="activity-header">Recent Activity</div>
+      <div id="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #4caf50;">✓</div>
+          <div class="activity-text">Blocked phishing site</div>
+          <div class="activity-time">2m ago</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #ff9800;">⚠</div>
+          <div class="activity-text">Suspicious form detected</div>
+          <div class="activity-time">5m ago</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #2196f3;">📊</div>
+          <div class="activity-text">Voted on report</div>
+          <div class="activity-time">1h ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Powered by blockchain & community</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

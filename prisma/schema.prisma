@@ -1,0 +1,115 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  walletAddress String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reports       Report[]
+  badges        Badge[]
+  proposals     Proposal[]
+  proposalVotes ProposalVote[]
+
+  @@map("users")
+}
+
+model Report {
+  id              Int      @id @default(autoincrement())
+  reportType      String   // "phishing_url" or "scam_wallet"
+  targetValue     String   // The URL or wallet address being reported
+  description     String
+  reportHash      String   @unique // bytes32 hash for on-chain anchoring
+  isAnchoredOnChain Boolean @default(false)
+  onChainTxHash   String?  // Transaction hash when anchored
+  reporterId      Int
+  reporter        User     @relation(fields: [reporterId], references: [id])
+  votes           Vote[]
+  proposals       Proposal[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([reportType])
+  @@index([targetValue])
+  @@index([reportHash])
+  @@map("reports")
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  reportId  Int
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  voterAddress String // Wallet address of the voter
+  isValid   Boolean  // true = valid (not phishing), false = invalid (phishing)
+  createdAt DateTime @default(now())
+
+  @@unique([reportId, voterAddress]) // One vote per user per report
+  @@index([reportId])
+  @@index([voterAddress])
+  @@map("votes")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  tokenId     BigInt?  // on-chain token id (nullable until minted)
+  ownerId     Int      // FK to User.id
+  owner       User     @relation(fields: [ownerId], references: [id])
+  level       Int      // 0=Bronze,1=Silver,... etc
+  tier        String   // 'Bronze','Silver','Gold'...
+  metadataURI String?  // IPFS or hosted metadata
+  mintedAt    DateTime?
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([tokenId])
+  @@map("badges")
+}
+
+model Proposal {
+  id           String        @id @default(cuid())
+  reportId     Int           // FK to Report.id
+  report       Report        @relation(fields: [reportId], references: [id])
+  proposerId   Int           // FK to User.id
+  proposer     User          @relation(fields: [proposerId], references: [id])
+  title        String
+  description  String
+  onchainId    BigInt?       // on-chain proposal id
+  status       String        // 'Pending','Active','Succeeded','Defeated','Executed'
+  snapshot     DateTime?
+  startTime    DateTime?
+  endTime      DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  proposalVotes ProposalVote[]
+
+  @@index([reportId])
+  @@index([proposerId])
+  @@index([onchainId])
+  @@map("proposals")
+}
+
+model ProposalVote {
+  id          String   @id @default(cuid())
+  proposalId  String
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  voterId     Int      // FK to User.id
+  voter       User     @relation(fields: [voterId], references: [id])
+  onchainTx   String?
+  choice      String   // 'For','Against','Abstain'
+  weight      Float
+  createdAt   DateTime @default(now())
+
+  @@unique([proposalId, voterId])
+  @@index([proposalId])
+  @@index([voterId])
+  @@map("proposal_votes")
+}
